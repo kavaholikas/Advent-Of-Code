@@ -6,6 +6,8 @@ namespace AOC2019
     {
         static void Main(string[] args)
         {
+            Console.Clear();
+
             if (args.Length == 0) 
             {
                 Day2.Solve();
