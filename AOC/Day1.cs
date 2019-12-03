@@ -4,15 +4,9 @@ namespace AOC2019
 {
     class Day1
     {
-        private static string Name = "Day1";
-        private static string InputOne = "Input1";
-        private static string InputTwo = "Input2";
-        private static string OutputOne = "Output1";
-        private static string OutputTwo = "Output2";
-
         private static void ProblemOne()
         {
-           string[] input = Utils.LoadInput(Name, InputOne); 
+           string[] input = Utils.LoadInputArray("Day1", "Input1"); 
 
            int fuel = 0;
 
@@ -23,13 +17,13 @@ namespace AOC2019
                fuel += n / 3 - 2;
            }
 
-           Console.WriteLine($"{Name}: Problem One Result: {fuel}");
-           Utils.SaveResults(Name, OutputOne, fuel.ToString());
+           Console.WriteLine($"Day1: Problem One Result: {fuel}");
+           Utils.SaveResults("Day1", "Output1", fuel.ToString());
         }
 
         private static void ProblemTwo()
         {
-            string[] input = Utils.LoadInput(Name, InputTwo);
+            string[] input = Utils.LoadInputArray("Day1", "Input2");
 
             int fuel = 0;
 
@@ -50,8 +44,8 @@ namespace AOC2019
                 fuel += moduleFuel;
             }
 
-           Console.WriteLine($"{Name}: Problem Two Result: {fuel}");
-           Utils.SaveResults(Name, OutputTwo, fuel.ToString());
+           Console.WriteLine($"Day1: Problem Two Result: {fuel}");
+           Utils.SaveResults("Day1", "Output2", fuel.ToString());
         }
 
         public static void Solve()
