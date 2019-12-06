@@ -38,11 +38,20 @@ namespace AOC2019
     {
         public int X { get; set; }
         public int Y { get; set; }
+        public char D { get; set; }
+        public string Command { get; set; }
 
-        public Point(int X, int Y)
+        public Point(int X, int Y, char D, string Command)
         {
             this.X = X;
             this.Y = Y;
+            this.D = D;
+            this.Command = Command;
+        }
+
+        public override string ToString()
+        {
+            return $"X: {X} Y: {Y} D: {D} Command: {Command}";
         }
     }
 }

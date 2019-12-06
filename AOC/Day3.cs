@@ -6,164 +6,163 @@ namespace AOC2019
 {
     class Day3
     {
-        public struct EndPoints 
-        {
-            public Point Start { get; set; }
-            public Point End { get; set; }
-            public char Direction { get; set; }
-
-            public EndPoints(Point Start, Point End, char Direction)
-            {
-                this.Start = Start;
-                this.End = End;
-                this.Direction = Direction;
-            }
-        }
         private static void ProblemOne()
         {
             string[] inputs = Utils.LoadInputArray("Day3", "Input1");
-
             string[] wireOneInputs = inputs[0].Split(",");
             string[] wireTwoInputs = inputs[1].Split(",");
 
-            int inputLength = wireOneInputs.Length;
+            Point[] wireOneSegments = new Point[wireOneInputs.Length + 1];
+            Point[] wireTwoSegments = new Point[wireTwoInputs.Length + 1];
 
-            EndPoints[] wireOneEndPoints = new EndPoints[inputLength];
-            EndPoints[] wireTwoEndPoints = new EndPoints[inputLength];
+            wireOneSegments[0] = new Point(0, 0, 'N', "N");
+            wireTwoSegments[0] = new Point(0, 0, 'N', "N");
 
-            Point wireOneLastPoint = new Point(0, 0);
-            Point wireTwoLastPoint = new Point(0, 0);
+            _GetSegments(wireOneInputs, ref wireOneSegments);
+            _GetSegments(wireTwoInputs, ref wireTwoSegments);
 
-            int distance = 0;
+            (int distance, int steps) = _GetIntersectionDistance(wireOneSegments, wireTwoSegments);
 
-            for (int i = 0; i < inputLength; i++)
-            {
-                // generate wire one.
-                string inputOne = wireOneInputs[i];
-                wireOneEndPoints[i] = _GetStep(inputOne, wireOneLastPoint);
-                wireOneLastPoint = wireOneEndPoints[i].End;
-
-                // compare new wire with all old wires
-                distance = _TestForHits(wireOneEndPoints, wireTwoEndPoints, i, distance);
-
-                //generate wire two
-                string inputTwo = wireTwoInputs[i];
-                wireTwoEndPoints[i] = _GetStep(inputTwo, wireOneLastPoint);
-                wireTwoLastPoint = wireOneEndPoints[i].End;
-
-                // compare new wire with all old wires
-                distance = _TestForHits(wireTwoEndPoints, wireOneEndPoints, i, distance);
-            }
-
-            Console.WriteLine("Distance: " + distance);
+            Console.WriteLine($"Day3: Problem One Result: {distance}");
+            Utils.SaveResults("Day3", "Output1", distance.ToString());
         }
 
-        private static EndPoints _GetStep(string input, Point lastPos)
+        private static void _GetSegments(string[] inputs, ref Point[] wire)
         {
-                char dir = input[0];
-                int step = int.Parse(input.Substring(1));
+            for (int i = 0; i < inputs.Length; i++)
+            {
+                char direction = inputs[i][0];
+                int step = int.Parse(inputs[i].Substring(1));
 
-                Point end = new Point(lastPos.X, lastPos.Y);
+                Point segment = new Point(wire[i].X, wire[i].Y, direction, inputs[i]);
 
-                switch (dir)
+                switch (direction)
                 {
                     case 'L':
-                        end.X -= step;
+                        segment.X -= step;
                         break;
                     case 'R':
-                        end.X += step;
+                        segment.X += step;
                         break;
                     case 'D':
-                        end.Y -= step;
+                        segment.Y -= step;
                         break;
                     case 'U':
-                        end.Y += step;
+                        segment.Y += step;
                         break;
                 }
 
-                return new EndPoints(lastPos, end, dir);
+                wire[i + 1] = segment;
+            }
         }
 
-        private static int _TestForHits(EndPoints[] mainWireEndpoints, EndPoints[] targetWireEndPoints, int i, int distance)
+        private static (int distance, int steps) _GetIntersectionDistance(Point[] wireOne, Point[] wireTwo)
         {
-            for (int j = 0; j < i; j++)
+            int Hit = 0;
+            int Steps = 0;
+
+            int wireOneSteps = 0;
+
+            for (int i = 0; i < wireOne.Length - 1; i++)
             {
-                EndPoints mainWire = mainWireEndpoints[i];
-                EndPoints targetWire = targetWireEndPoints[j];
+                Point a1 = wireOne[i];
+                Point a2 = wireOne[i + 1];
 
-                char dir = mainWire.Direction;
-                char targetDir = targetWire.Direction;
+                int wireTwoSteps = 0;
 
-                // Horizontal Hit
-                bool horizontalHit = (dir == 'L' || dir == 'R') && (targetDir == 'U' || targetDir == 'D');
-                if (horizontalHit)
+                for (int j = 0; j < wireTwo.Length - 1; j++)
                 {
-                    int MY = Math.Abs(mainWire.End.Y);
-                    int TSY = Math.Abs(targetWire.Start.Y);
-                    int TEY = Math.Abs(targetWire.End.Y);
-
-                    if (MY >= TSY && MY <= TEY)
+                    Point b1 = wireTwo[j];
+                    Point b2 = wireTwo[j + 1];
+                    
+                    // Horizontal Check
+                    if ((a2.D == 'L' || a2.D == 'R') && (b2.D == 'U' || b2.D == 'D'))
                     {
-                        int TX = Math.Abs(targetWire.End.X);
-                        int MSX = Math.Abs(mainWire.Start.X);
-                        int MEX = Math.Abs(mainWire.End.X);
-                        if (TX >= MSX && TX <= MEX)
+                        Point amin = a1.X < a2.X? a1: a2;
+                        Point amax = a1.X > a2.X? a1: a2;
+                        Point bmin = b1.Y < b2.Y? b1: b2;
+                        Point bmax = b1.Y > b2.Y? b1: b2;
+
+                        if (amin.X <= bmin.X && amax.X >= bmin.X && bmin.Y <= amin.Y && bmax.Y >= amin.Y)
                         {
-                            Console.WriteLine("HIT");
-                            int hitDistance = Math.Abs(targetWire.Start.X) + Math.Abs(mainWire.Start.Y);
-                            if (distance == 0)
+                            // Hit
+                            int X = Math.Abs(bmin.X);
+                            int Y = Math.Abs(amin.Y);
+
+                            int hit = X + Y;
+                            Hit = Hit == 0? hit: Math.Min(hit, Hit);
+
+                            if (wireOneSteps + wireTwoSteps < 15000)
                             {
-                                distance = hitDistance;
+                                Console.WriteLine("HIT: " + Hit);
+                                Console.WriteLine("STEPS: " + (wireOneSteps + wireTwoSteps));
+                                Console.WriteLine("AMIN: " + amin.X);
+                                Console.WriteLine("X: " + bmin.X);
+                                Console.WriteLine("AMAX: " + amax.X);
+                                Console.WriteLine("BMIN: " + bmin.Y);
+                                Console.WriteLine("Y: " + amin.Y);
+                                Console.WriteLine("BMAX: " + bmax.Y);
                             }
-                            else
-                            {
-                                distance = Math.Min(distance, hitDistance);
-                            }
+
+                            int steps = wireOneSteps + wireTwoSteps;
+                            Steps = Steps == 0? steps: Math.Min(steps, Steps);
                         }
                     }
-                }
-
-                // Vertical Hit
-                bool verticalHit = (dir == 'U' || dir == 'D') && (targetDir == 'L' || targetDir == 'R');
-                if (verticalHit)
-                {
-                    int MX = Math.Abs(mainWire.End.X);
-                    int TSX = Math.Abs(targetWire.Start.X);
-                    int TEX = Math.Abs(targetWire.End.X);
-                    if (MX >= TSX && MX <= TEX)
+                    // Vertical Check
+                    else if ((a2.D == 'U' || a2.D == 'D') && (b2.D == 'L' || b2.D == 'R'))
                     {
-                        int TY = Math.Abs(targetWire.End.Y);
-                        int MSY = Math.Abs(mainWire.Start.Y);
-                        int MEY = Math.Abs(mainWire.End.Y);
-                        if (TY >= MSY && TY <= MEY)
+                        Point amin = a1.X < a2.X? a1: a2;
+                        Point amax = a1.X > a2.X? a1: a2;
+                        Point bmin = b1.Y < b2.Y? b1: b2;
+                        Point bmax = b1.Y > b2.Y? b1: b2;
+
+                        if (bmin.X <= amin.X && bmax.X >= amin.X && amin.Y <= bmin.Y && amax.Y >= bmin.Y) 
                         {
-                            Console.WriteLine("HIT");
-                            int hitDistance = Math.Abs(targetWire.Start.X) + Math.Abs(mainWire.Start.Y);
-                            if (distance == 0)
-                            {
-                                distance = hitDistance;
-                            }
-                            else
-                            {
-                                distance = Math.Min(distance, hitDistance);
-                            }
+                            // Hit
+                            int X = Math.Abs(bmin.X);
+                            int Y = Math.Abs(amin.Y);
+
+                            int hit = X + Y;
+                            Hit = Hit == 0? hit: Math.Min(hit, Hit);
+
+                            int steps = wireOneSteps + wireTwoSteps;
+                            Steps = Steps == 0? steps: Math.Min(steps, Steps);
                         }
                     }
 
+                    wireTwoSteps += int.Parse(b2.Command.Substring(1));
                 }
+
+                wireOneSteps += int.Parse(a2.Command.Substring(1));
             }
 
-            return distance;
+            return (distance: Hit, steps:  Steps);
         }
 
         private static void ProblemTwo()
         {
+            string[] inputs = Utils.LoadInputArray("Day3", "Input2");
+            string[] wireOneInputs = inputs[0].Split(",");
+            string[] wireTwoInputs = inputs[1].Split(",");
 
+            Point[] wireOneSegments = new Point[wireOneInputs.Length + 1];
+            Point[] wireTwoSegments = new Point[wireTwoInputs.Length + 1];
+
+            wireOneSegments[0] = new Point(0, 0, 'N', "N");
+            wireTwoSegments[0] = new Point(0, 0, 'N', "N");
+
+            _GetSegments(wireOneInputs, ref wireOneSegments);
+            _GetSegments(wireTwoInputs, ref wireTwoSegments);
+
+            (int distance, int steps) = _GetIntersectionDistance(wireOneSegments, wireTwoSegments);
+
+            Console.WriteLine($"Day3: Problem Two Result: NOT SOLVED");
+            Utils.SaveResults("Day3", "Output2", steps.ToString());
         }
 
         public static void Solve()
         {
-            ProblemOne();
+            //ProblemOne();
             ProblemTwo();
         }
 
