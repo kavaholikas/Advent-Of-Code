@@ -92,18 +92,6 @@ namespace AOC2019
                             int hit = X + Y;
                             Hit = Hit == 0? hit: Math.Min(hit, Hit);
 
-                            if (wireOneSteps + wireTwoSteps < 15000)
-                            {
-                                Console.WriteLine("HIT: " + Hit);
-                                Console.WriteLine("STEPS: " + (wireOneSteps + wireTwoSteps));
-                                Console.WriteLine("AMIN: " + amin.X);
-                                Console.WriteLine("X: " + bmin.X);
-                                Console.WriteLine("AMAX: " + amax.X);
-                                Console.WriteLine("BMIN: " + bmin.Y);
-                                Console.WriteLine("Y: " + amin.Y);
-                                Console.WriteLine("BMAX: " + bmax.Y);
-                            }
-
                             int steps = wireOneSteps + wireTwoSteps;
                             Steps = Steps == 0? steps: Math.Min(steps, Steps);
                         }
@@ -157,12 +145,12 @@ namespace AOC2019
             (int distance, int steps) = _GetIntersectionDistance(wireOneSegments, wireTwoSegments);
 
             Console.WriteLine($"Day3: Problem Two Result: NOT SOLVED");
-            Utils.SaveResults("Day3", "Output2", steps.ToString());
+            Utils.SaveResults("Day3", "Output2", "NOT SOLVED");
         }
 
         public static void Solve()
         {
-            //ProblemOne();
+            ProblemOne();
             ProblemTwo();
         }
 

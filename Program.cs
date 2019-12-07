@@ -10,7 +10,7 @@ namespace AOC2019
 
             if (args.Length == 0) 
             {
-                Day3.Solve();
+                Day4.Solve();
                 return;
             }
 
@@ -24,6 +24,9 @@ namespace AOC2019
                     break;
                 case "3":
                     Day3.Solve();
+                    break;
+                case "4":
+                    Day4.Solve();
                     break;
                 
                 default:
