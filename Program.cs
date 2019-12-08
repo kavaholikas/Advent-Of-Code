@@ -10,7 +10,7 @@ namespace AOC2019
 
             if (args.Length == 0) 
             {
-                Day5.Solve();
+                Day6.Solve();
                 return;
             }
 
@@ -31,7 +31,18 @@ namespace AOC2019
                 case "5":
                     Day5.Solve();
                     break;
-                
+                case "6":
+                    Day6.Solve();
+                    break;
+
+                case "all":
+                    Day1.Solve();
+                    Day2.Solve();
+                    Day3.Solve();
+                    Day4.Solve();
+                    Day5.Solve();
+                    Day6.Solve();
+                    break;
                 default:
                     Console.WriteLine("Wrong Day");
                     break;
